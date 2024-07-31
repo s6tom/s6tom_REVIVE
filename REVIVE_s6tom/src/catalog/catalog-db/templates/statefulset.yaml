@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "catalog-db.fullname" . }}
+  labels:
+    {{- include "catalog-db.labels" . | nindent 4 }}
+spec:
+  serviceName: "{{ include "catalog-db.fullname" . }}-headless"
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "catalog-db.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "catalog-db.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: catalog-db
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MYSQL_PASSWORD
+              value:  {{ .Values.mysql.password }} 
+            - name: MYSQL_USER
+              value: {{ .Values.mysql.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database }}
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: catalog-db-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: catalog-db-data
+      spec:
+        accessModes: {{ .Values.persistence.accessModes }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}

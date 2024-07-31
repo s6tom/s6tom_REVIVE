@@ -1,0 +1,33 @@
+image:
+  repository: amazon/dynamodb-local
+  tag: latest
+  pullPolicy: Always
+
+replicaCount: 1
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  storageClass: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+persistentVolumes:
+  name: pv-dynamodb
+  capacity: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+      path: /mnt/data/dynamodb
+
+serviceAccount: 
+  create: true 
+ingress:
+  enabled: false
+service: 
+  type: ClusterIP   

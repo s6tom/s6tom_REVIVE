@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  ui:
+    build:
+      context: ./ui
+    ports:
+      - "8066:8080"
+    depends_on:
+      - assets
+      - checkout
+      - orders
+      - carts
+      - catalog
+      - rabbitmq
+
+  assets:
+    build:
+      context: ./assets
+    ports:
+      - "8081:8080"
+
+  checkout:
+    build:
+      context: ./checkout
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    ports:
+      - "8082:8080"
+
+  orders:
+    build:
+      context: ./orders
+    environment:
+      - MYSQL_HOST=mysql-orders
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    depends_on:
+      - mysql-orders
+    ports:
+      - "8083:8080"
+
+  carts:
+    build:
+      context: ./cart
+    environment:
+      - DYNAMODB_ENDPOINT=http://dynamodb:8000
+    depends_on:
+      - dynamodb
+    ports:
+      - "8084:7575"
+
+  catalog:
+    build:
+      context: ./catalog
+    environment:
+      - DB_HOST=catalog-db  
+      - DB_PASSWORD=rootpassword
+      - DB_USER=root 
+      - DB_ENDPOINT=catalog-db:3306
+      - DB_READ_ENDPOINT=catalog-db:3306
+    depends_on:
+      - catalog-db 
+    restart: always  
+    ports:
+      - "8085:8080"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  mysql-orders:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catalog-db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=sampledb 
+      - MYSQL_USER=user_catalog
+      - MYSQL_PASSWORD=password_catalog 
+      - DB_ENDPOINT=catalog-db:3306
+      - DB_READ_ENDPOINT=catalog-db:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - "8000:8000"

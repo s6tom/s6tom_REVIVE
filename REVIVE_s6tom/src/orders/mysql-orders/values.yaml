@@ -1,0 +1,40 @@
+image:
+  repository: mysql
+  tag: latest
+  pullPolicy: Always
+
+replicaCount: 1
+
+mysql:
+  rootPassword: rootpassword
+  database: orders
+  user: user
+  password: password
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  storageClass: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+persistentVolumes:
+  name: pv-mysql-orders
+  capacity: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/mysql-orders
+
+serviceAccount: 
+  create: true 
+ingress:
+  enabled: false
+service: 
+  type: ClusterIP 
+  port: 3306  

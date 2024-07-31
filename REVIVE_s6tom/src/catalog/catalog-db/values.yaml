@@ -1,0 +1,39 @@
+image:
+  repository: mysql
+  tag: latest
+  pullPolicy: Always
+
+replicaCount: 1
+
+mysql:
+  database: sampledb
+  user: user_catalog
+  password: password_catalog
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  storageClass: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+persistentVolumes:
+  name: pv-catalog-db
+  capacity: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/catalog-db
+
+serviceAccount: 
+  create: true 
+ingress:
+  enabled: false
+service: 
+  type: ClusterIP 
+  port: 3306

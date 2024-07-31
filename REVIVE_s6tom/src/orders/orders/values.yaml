@@ -1,0 +1,39 @@
+replicaCount: 1
+
+image:
+  repository: s6tom/revive
+  tag: orders
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 8080
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+
+resources: {}
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+mysql:
+  rootPassword: mysql-orders 
+  database: orders
+  user: user
+  password: password
+
+serviceAccount: 
+  create: true   

@@ -1,0 +1,26 @@
+image:
+  repository: redis
+  tag: latest
+  pullPolicy: Always
+
+replicaCount: 1
+
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 2Gi
+  storageClass: ""
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+persistentVolumes:
+  name: pv-redis
+  capacity: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+      path: /mnt/data/redis
